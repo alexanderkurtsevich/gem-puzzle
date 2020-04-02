@@ -1,0 +1,27 @@
+.puzzle__container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    width: 40vw;
+    height: 40vw;
+}
+
+.puzzle__box {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    border: 1px solid black;
+    transition: .55s ease-out;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    cursor: pointer;
+}
+
+
+.item-0{
+visibility: hidden;
+}
