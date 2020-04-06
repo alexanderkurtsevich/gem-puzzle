@@ -35,6 +35,8 @@ class Puzzle {
         this.mainPuzzle.append(this.container)
         this.createElements();
 
+        this.zero = document.querySelector('.item-0');
+
         this.blockWindow = document.createElement('div');
         this.blockWindow.classList.add('puzzle__block-window', 'active');
         this.container.append(this.blockWindow);
@@ -43,15 +45,12 @@ class Puzzle {
         this.container.addEventListener('click', (event) => {
             this.moveElement(event)
         });
-        this.sizeButtons.addEventListener('click', (event) => {     //Ивент листенер для кнопок размеров поля
+        this.sizeButtons.addEventListener('click', (event) => { 
+            if (event.target.classList.contains('button')){    //Ивент листенер для кнопок размеров поля
             this.countOfRows = event.target.innerHTML[0];
             this.countOfElements = this.countOfRows ** 2;
-            this.stopTimer();
-            this.refreshTimer();
-            this.refreshCount()
-            this.removeElements();
-            this.createElements();
-            this.blockWindow.classList.add('active');
+            this.refreshGame()
+            }
         })
         this.timerButton.addEventListener('click', (event) => {     //Ивент листенер для кнопки таймера (старт стоп)
             if (this.timerButton.innerHTML === 'СТАРТ') {
@@ -65,26 +64,26 @@ class Puzzle {
         })
 
         this.newGameButton.addEventListener('click', (event) => {
-            this.stopTimer();
-            this.refreshTimer();
-            this.refreshCount()
-            this.removeElements();
-            this.createElements();
-            this.blockWindow.classList.add('active');
-
+            this.refreshGame();
         })
 
         this.saveGameButton.addEventListener('click', (event) => {
-            localStorage.setItem('save', true);
-            localStorage.setItem('countOfRows', this.countOfRows);
-            localStorage.setItem('countOfElements', this.countOfElements);
-            localStorage.setItem('config', JSON.stringify(this.config));
-            localStorage.setItem('min', this.min);
-            localStorage.setItem('sec', this.sec);
-            localStorage.setItem('count', this.count);
+            let gameInfo = {
+                'countOfRows': this.countOfRows,
+                'countOfElements': this.countOfElements,
+                'config': this.config,
+                'min': this.min,
+                'sec': this.sec,
+                'count': this.count,
+            };
+            localStorage.setItem('save', true)
+            localStorage.setItem('gameInfo', JSON.stringify(gameInfo))
+            
         })
 
     }
+
+    
     createElements() {
         for (let i = 0; i <= this.countOfElements - 1; i += 1) {
             this.config.push(i.toString())
@@ -99,9 +98,9 @@ class Puzzle {
         })
 
         if (localStorage.save === "true") {
-            this.config = JSON.parse(localStorage.config);
-            this.countOfRows = JSON.parse(localStorage.countOfRows);
-            this.countOfElements = JSON.parse(localStorage.countOfElements);
+            this.config = JSON.parse(localStorage.gameInfo).config;
+            this.countOfRows = JSON.parse(localStorage.gameInfo).countOfRows;
+            this.countOfElements = JSON.parse(localStorage.gameInfo).countOfElements;
             localStorage.save = "false"
         }
 
@@ -109,6 +108,8 @@ class Puzzle {
             let box = document.createElement('div');
             box.classList.add('puzzle__box', `item-${number}`);
             box.innerHTML = number;
+            box.style.left = 0;
+            box.style.top = 0;
             this.container.append(box);
             this.elements.push(box);
         })
@@ -126,8 +127,8 @@ class Puzzle {
 
     createCount() {
         this.countElement = document.createElement('p');
-        if (localStorage.save === "true"){
-            this.count = JSON.parse(localStorage.count)
+        if (localStorage.save === "true") {
+            this.count = JSON.parse(localStorage.gameInfo).count
         }
         this.countElement.innerHTML = `Количество ходов: ${this.count}`;
         this.mainPuzzle.append(this.countElement);
@@ -155,11 +156,11 @@ class Puzzle {
     }
 
     createTimer() {
-        
+
         this.timer = document.createElement('p');
         if (localStorage.save === "true") {
-            this.min = JSON.parse(localStorage.min);
-            this.sec = JSON.parse(localStorage.sec);
+            this.min = JSON.parse(localStorage.gameInfo).min;
+            this.sec = JSON.parse(localStorage.gameInfo).sec;
             this.timer.innerHTML = (this.sec < 9) ? `Время: ${this.min}:0${this.sec}` : `Время: ${this.min}:${this.sec}`
         }
         else {
@@ -202,24 +203,21 @@ class Puzzle {
         this.timerButton.innerHTML = 'СТАРТ';
     }
 
-
-
-
-    createNewGameButton(){
+    createNewGameButton() {
         this.newGameButton = document.createElement('button');
         this.newGameButton.classList.add('puzzle__new-game-button', 'button');
         this.newGameButton.innerHTML = "Перемешать";
         this.mainButtonsWrap.append(this.newGameButton);
     }
 
-    createSaveGameButton(){
+    createSaveGameButton() {
         this.saveGameButton = document.createElement('button');
         this.saveGameButton.classList.add('puzzle__save-game-button', 'button');
         this.saveGameButton.innerHTML = "Сохранить";
         this.mainButtonsWrap.append(this.saveGameButton);
     }
 
-    createResultsButton(){
+    createResultsButton() {
         this.ResultsButton = document.createElement('button');
         this.ResultsButton.classList.add('puzzle__results-button', 'button');
         this.ResultsButton.innerHTML = "Результаты";
@@ -228,6 +226,15 @@ class Puzzle {
 
     changePositionsInConfig() {
         [this.config[this.config.indexOf(event.target.innerHTML)], this.config[this.positionOfZero]] = [this.config[this.positionOfZero], this.config[this.config.indexOf(event.target.innerHTML)]]
+    }
+
+    refreshGame(){
+        this.stopTimer();
+        this.refreshTimer();
+        this.refreshCount()
+        this.removeElements();
+        this.createElements();
+        this.blockWindow.classList.add('active');
     }
 
     moveElement() {
@@ -241,12 +248,9 @@ class Puzzle {
                     if (this.positionOfZero % this.countOfRows == 0) {
                         break;
                     }
-                    if (event.target.style.left == "") {
-                        event.target.style.left = elementWidth + 'px'
-                    }
-                    else {
-                        event.target.style.left = parseFloat(event.target.style.left) + elementWidth + 'px'
-                    }
+                    event.target.style.left = parseFloat(event.target.style.left) + elementWidth + 'px';
+                    this.zero.style.left = parseFloat(this.zero.style.left) - elementWidth + 'px';
+
                     this.changePositionsInConfig();
                     this.incremetCount();
                     break;
@@ -255,34 +259,23 @@ class Puzzle {
                     if ((this.positionOfZero + 1) % this.countOfRows == 0) {
                         break;
                     }
-                    if (event.target.style.left == "") {
-                        event.target.style.left = -elementWidth + 'px'
-                    }
-                    else {
-                        event.target.style.left = parseFloat(event.target.style.left) - elementWidth + 'px'
-                    }
+                    event.target.style.left = parseFloat(event.target.style.left) - elementWidth + 'px';
+                    this.zero.style.left = parseFloat(this.zero.style.left) + elementWidth + 'px';
                     this.changePositionsInConfig();
                     this.incremetCount();
                     break;
                 };
                 case this.config[this.positionOfZero + -this.countOfRows]: {
-                    if (event.target.style.top == "") {
-                        event.target.style.top = elementWidth + 'px'
-                    }
-                    else {
-                        event.target.style.top = parseFloat(event.target.style.top) + elementWidth + 'px'
-                    }
+                    event.target.style.top = parseFloat(event.target.style.top) + elementWidth + 'px';
+                    this.zero.style.top = parseFloat(this.zero.style.top) - elementWidth + 'px';
                     this.changePositionsInConfig();
                     this.incremetCount();
                     break;
                 };
                 case this.config[this.positionOfZero + +this.countOfRows]: {
-                    if (event.target.style.top == "") {
-                        event.target.style.top = -elementWidth + 'px'
-                    }
-                    else {
-                        event.target.style.top = parseFloat(event.target.style.top) - elementWidth + 'px'
-                    }
+
+                    event.target.style.top = parseFloat(event.target.style.top) - elementWidth + 'px';
+                    this.zero.style.top = parseFloat(this.zero.style.top) + elementWidth + 'px';
                     this.changePositionsInConfig();
                     this.incremetCount();
                     break;
@@ -292,15 +285,42 @@ class Puzzle {
         this.check();
     }
 
-    winWindow() {
-        let winWindow = document.createElement('div');
-        winWindow.classList.add('win-window');
-        winWindow.innerHTML = `<p> Вы победили!</p>
+    showWinWindow() {
+        this.winWindow = document.createElement('div');
+        this.winWindow.classList.add('win-window');
+        this.winWindow.innerHTML = `<p> Вы победили!</p>
                                  <p>Ваш результат:</p>
                                     <p>Ходов: ${this.count}</p>
-                                    <p>Время: ${this.min}м. ${this.sec}с.<p>`
+                                    <p>Время: ${this.min}м. ${this.sec}с.<p>`;
+        this.stopTimer()
 
-        document.body.append(winWindow)
+        this.inputName = document.createElement('input');
+        this.inputName.classList.add('win-window__inputName');
+        this.inputName.setAttribute('placeholder', 'Введите ваше имя');
+        this.inputName.setAttribute('maxlength', '16')
+        this.winWindow.append(this.inputName);
+
+        this.winApplyButton = document.createElement('button');
+        this.winApplyButton.classList.add('win-window__apply-button', 'button');
+        this.winApplyButton.innerHTML = 'Принять';
+        this.winWindow.append(this.winApplyButton);
+
+        let block = document.createElement('div');
+        block.classList.add('block-all');
+        document.body.append(block);
+
+
+        this.winApplyButton.addEventListener('click', (event) => {
+            this.refreshGame();
+            this.winWindow.remove();
+            block.remove()
+
+        })
+        document.body.append(this.winWindow)
+    }
+
+    showResults(){
+        
     }
 
     check() {
@@ -312,7 +332,7 @@ class Puzzle {
 
         if (checkCount === this.config.length) {
             setTimeout(() => {
-                this.winWindow()
+                this.showWinWindow()
             }, 550);
         }
 
