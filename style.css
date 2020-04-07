@@ -6,6 +6,7 @@ html{
 body{
     background-color: #99d5ff;
     position: relative;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .button {
@@ -51,7 +52,7 @@ body{
     display: none;
 }
 
-.puzzle__box {
+.puzzle__cell {
     height: 100%;
     width: 100%;
     display: flex;
@@ -132,4 +133,27 @@ p {
     bottom: 0;
     right: 0;
     z-index: 2;
+}
+
+.results-window {
+    position: absolute;
+    width: 300px;
+    height: 285px;
+    background-color: #cdffc9;
+    z-index: 3;
+    border: 3px solid black;
+    border-radius: 10px;
+    top: 0;
+    left: 0;
+    bottom: 25%;
+    right: 0;
+    margin: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.results-window__player-info {
+    font-size: 14px;
 }
