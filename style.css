@@ -157,3 +157,18 @@ p {
 .results-window__player-info {
     font-size: 14px;
 }
+
+@media screen and (max-width: 767px) {
+    .puzzle__container {
+        width: 310px;
+        height: 310px;
+    }
+
+    .puzzle__cell {
+        font-size: 14px;
+    }
+
+    .win-window {
+        height: 160px;
+    }
+}
