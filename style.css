@@ -93,14 +93,14 @@ body{
 .win-window__inputName {
     width: 95%;
     height: 31px;
-    font-size: 3vw;
+    font-size: 25px;
     border-radius: 10px;
     border: 3px solid black;
     padding-left: 5px;
 }
 
 .win-window__apply-button {
-    font-size: 3vw;
+    font-size: 25px;
     margin: 6px 0 0 0;
 }
 
@@ -110,7 +110,7 @@ body{
 }
 
 p {
-    font-size: 3vw;
+    font-size: 25px;
     margin: 0 0 5px 0;
 }
 
